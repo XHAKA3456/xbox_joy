@@ -28,28 +28,26 @@ class JoystickTeleop(Node):
 
         self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_vel_joy', 10)
 
-        self.publish_vel = False  # A 버튼을 누르면 True, B 버튼을 누르면 False
+        self.publish_vel = False
 
-        # 🔹 50ms (0.05초)마다 실행되는 타이머 생성
         self.create_timer(0.05, self.timer_callback)
 
         self.get_logger().info("JoystickTeleop 노드가 시작되었습니다.")
 
-        # 🔹 게임패드 입력을 별도의 스레드에서 처리
-        self.create_timer(0.01, self.joy_callback)  # 10ms마다 입력 체크
+        self.create_timer(0.01, self.joy_callback)
 
     def joy_callback(self):
         """ 게임패드 입력을 읽어 버튼 상태를 업데이트 """
         pygame.event.pump()
 
-        btn_A = self.joystick.get_button(0)  # 이동 시작
-        btn_B = self.joystick.get_button(1)  # 정지
+        btn_A = self.joystick.get_button(0)
+        btn_B = self.joystick.get_button(1)
 
         if btn_A:
-            self.publish_vel = True  # A 버튼을 누르면 속도 퍼블리시 시작
+            self.publish_vel = True
 
         if btn_B:
-            self.publish_vel = False  # B 버튼을 누르면 즉시 정지
+            self.publish_vel = False
             self.send_zero_velocity()
 
     def timer_callback(self):
@@ -57,7 +55,6 @@ class JoystickTeleop(Node):
         twist = Twist()
 
         if self.publish_vel:
-            # 🔹 일반적인 조이스틱 입력 값 반영
             linear_x = math.trunc(-self.joystick.get_axis(1) * 10) / 10
             angular_z = math.trunc(self.joystick.get_axis(2) * 10) / 10
 
@@ -76,7 +73,6 @@ def main(args=None):
     rclpy.init(args=args)
     node = JoystickTeleop()
 
-    # 🔹 멀티스레드 실행: pygame 입력 처리 & ROS 2 타이머 콜백 병렬 실행
     executor = MultiThreadedExecutor()
     executor.add_node(node)
     executor.spin()

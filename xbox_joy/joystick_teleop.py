@@ -37,7 +37,6 @@ class JoystickTeleop(Node):
         self.create_timer(0.01, self.joy_callback)
 
     def joy_callback(self):
-        """ 게임패드 입력을 읽어 버튼 상태를 업데이트 """
         pygame.event.pump()
 
         btn_A = self.joystick.get_button(0)
@@ -51,7 +50,6 @@ class JoystickTeleop(Node):
             self.send_zero_velocity()
 
     def timer_callback(self):
-        """ 주기적으로 Twist 메시지를 퍼블리시하는 함수 """
         twist = Twist()
 
         if self.publish_vel:
@@ -63,7 +61,6 @@ class JoystickTeleop(Node):
             self.cmd_vel_pub.publish(twist)
 
     def send_zero_velocity(self):
-        """ 정지 명령을 즉시 퍼블리시하는 함수 """
         twist = Twist()
         twist.linear.x = 0.0
         twist.angular.z = 0.0
